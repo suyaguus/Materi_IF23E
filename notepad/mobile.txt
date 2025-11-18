@@ -1,0 +1,18 @@
+npm run android / web
+
+emulator -list-avds
+
+adb devices
+
+Click (r) to restart
+
+Style css (rnfs)
+    const styles = StyleSheet.create({}) (hapus t lalu + t arahkan ke ReactNative)
+
+ReactNative Paper
+- npm install react-native-paper
+- npm install react-native-safe-area-context
+- npm install @react-native-vector-icons/material-design-icons
+
+npm install axios
+untuk get post put delete

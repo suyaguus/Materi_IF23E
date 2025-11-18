@@ -1,0 +1,15 @@
+Backend > Frontend
+
+https://bit.ly/UTI-PW2-IF23E
+
+1. Keunikan Judul
+2. Penggunaan GIT dan GITHUB (Commit)
+3. Dokumentasi Aplikasi (Manual Book)
+4. Waktu Pengerjaan
+5. Aplikasi
+
+Pengumpulan: 
+API 
+Mobile 
+Dokumentasi (Aplikasi bukam API (pdf)) 
+    Screenshot (penjelasan)

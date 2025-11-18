@@ -1,0 +1,4 @@
+// global css, module, Tailwind
+// css: In Line, Internal, Eksternal 
+
+urutan margin, padding: Top-Right-Bottom-Left

@@ -1,0 +1,4 @@
+Start Project
+(
+    npx @react-native-community/cli init TestingTS
+)

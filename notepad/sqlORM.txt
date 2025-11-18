@@ -1,0 +1,10 @@
+Key = Primary > Unique > Foreign > Kandidat > Alternatif
+
+Parameter (Primary) = Id, Kode
+http://localhost/mahasiswa/edit.php?npm=23312006 (php)
+http://localhost/mahasiswa/edit/23312006 (laravel)
+
+NextJs
+23312006 = slug (Parameter yang dikirim oleh Endopoint)
+http://localhost:3001/api/barang/17{id} or B01{kode}
+

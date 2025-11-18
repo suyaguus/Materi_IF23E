@@ -1,0 +1,13 @@
+- React Native TS
+- Postgre
+- Prisma
+- React Native Paper
+
+- JavaScript (ES6)
+- JavaScript and TypeScript
+- EsLint
+- Prisma
+- Es7+ React
+- Tailwind
+- React Native Tools
+- Windsurf Plugin

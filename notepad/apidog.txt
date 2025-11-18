@@ -1,0 +1,3 @@
+- Endpoint
+- http://localhost:3001/barang/api
+- Send

@@ -1,0 +1,89 @@
+showing database 	=> show databases;
+creating database	=> create database nama_database;
+using database		=> use nama_database;
+
+showing table		=> show tables;
+creating table		=> create table nama_table (nama_kolom1 char(8), nama_kolom2 varchar(255), primary key(nama_kolom1));
+rename table			=> rename table nama_table to nama_table_baru;
+
+add column table		=> alter table nama_table add nama_kolom3 int, add nama_kolom4 char(8);
+showing column		=> describe nama_table;
+change column name	=> alter table nama_table change nama_kolom2 nama_kolom_baru varchar(255) not null; 
+change column type	=> alter table nama_table modify nama_kolom1 int;
+drop column			=> alter table nama_table drop nama_kolom1;
+
+insert data			=> insert into nama_table values (value1, ‘value2’, ‘value’3, value4);
+update data			=> update nama_table set Nama = 'Ahmad', Alamat = 'Jakarta', Usia = 21 WHERE NPM = 23312044; (mengubah data yang disesuaikan dengan primary)
+insert data > 1			=> insert into nama_table values (value1, ‘value2’, ‘value’3, value4),(value1, ‘value2’, ‘value’3, value4);
+
+select * from (nama table) (menampilkan semua data)
+
+select (nama_table).(kolom_table), (nama_table lain).(kolom_table) from (nama_table); (menampilakan data dari 2 table berbeda)
+
+select A.(nama_kolom), A.(nama_kolom) from (nama_table) A; (menampilkan data)
+
+select JudulBuku as 'JudulBuku', Harga as 'Harga Buku' from tbl_buku where Harga < 50000; (menampilkan data dengan judul kolom yang bisa kia ubah)
+
+select (kolom) as '(kolom-baru)', (kolom) as '(kolom-baru)', (kolom as '(kolom-baru)' from (table) where (harga < 50000) or ((kolom primary) like '777%');
+
+select * from tbl_buku where Harga between 50000 and 60000;
+
+select Nama, Usia from mahasiswa (hanya menampilkan data yang ingin dipanggil)
+
+update (nama table) set Nama = ' ', where NPM = ' '; (mengubah data dalam table)
+
+delete from (nama table) where NPM = ' '; (menghapus data)
+
+alter table (nama table) modify (nama kolom) (variable); (mengubah jenis variable)
+
+select from (nama table) where (nama kolom) contoh:jenis_kelamin=('perempuan') = ' ' and (nama kolom) contoh:usia=('21') = ' '; (hanya menampilkan sesuai yang di panggil)
+
+select from (nama table) where (nama kolom) contoh:jenis_kelamin=('perempuan') = ' ' or (nama kolom) contoh:usia=('21') = ' '; (menampilkan data yang sama tapi di antara salah satunya)
+
+select * from mahasiswa whrere Nama like 'S%'; (memfilter nama yang ingin dipanggil pada data)
+
+select * from mahasiswa order by Nama asc; (mengurutkan isi data dari kecil ke besar)
+
+select * from mahasiswa order by Nama desc; (mengurutkan isi data dari besar ke kecil)
+
+alter table (nama table) add (nama kolom dari table berbeda) (variable);
+
+
+CREATE DATABASE db_penilaian;
+USE db_penilaian;
+CREATE TABLE table_mahasiswa(
+NPM CHAR (8) PRIMARY KEY,
+Nama VARCHAR (25),
+Alamat VARCHAR (250),
+Usia INT
+);
+
+CREATE TABLE table_matakuliah(
+Kode_Matkul CHAR (6) PRIMARY KEY,
+Nama_Matkul VARCHAR (25),
+SKS CHAR (1),
+Dosen VARCHAR (25)
+);
+
+CREATE TABLE table_detail_penilaian(
+NPM CHAR (8),
+Kode_Matkul CHAR (6),
+Nilai CHAR (1),
+FOREIGN KEY (NPM) REFERENCES table_mahasiswa(NPM),
+FOREIGN KEY (Kode_Matkul) REFERENCES table_matakuliah(Kode_Matkul)
+);
+
+foreign key tidak menggunakan primary key tapi terhubung dengan table lainnya.
+
+
+create view v_(nama tbl) as select (column 1), (column 2), (column 3); (merangkum column yang ingin dipanggil pada sebuah table	)
+
+VIEW `db_pemesanan`.`v_pemesanan` AS
+(SELECT tbl_pesan.`IDPesan`, tbl_pesan.`IDPelanggan`, tbl_pelanggan.`NamaPelanggan`, tbl_pesan.`TglPesan` FROM tbl_pesan, tbl_pelanggan WHERE tbl_pesan.`IDPelanggan` = tbl_pelanggan.`IDPelanggan` ORDER BY IDPesan);
+
+select * from v_pemesanan; (manggil view)
+
+alter view v_(nama tbl) as select (column 1), (column 2) as (column 2 new) from (nama tbl); (merubah view yang ingin kita tampilkan)
+
+drop view v_(nama tbl);
+
