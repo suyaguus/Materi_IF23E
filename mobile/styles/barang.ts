@@ -27,4 +27,9 @@ export const styles = StyleSheet.create({
   card: {
     margin: 20,
   },
+
+  text_input : {
+    backgroundColor: "#fff",
+    marginVertical: 5,
+  }
 });
