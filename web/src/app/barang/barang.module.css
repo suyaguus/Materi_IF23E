@@ -36,3 +36,8 @@
 .btn_delete {
     background-color: red;
 }
+
+/* style untuk label section add */
+.label {
+    margin-bottom: 5px;
+}

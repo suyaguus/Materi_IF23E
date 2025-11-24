@@ -14,6 +14,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import axios from "axios";
 import { Strings } from "@/constants/strings";
 import { formatRupiah } from "@/utils/scripts";
+import { router } from "expo-router";
 
 export default function BarangViewPage() {
   const [visible, setVisible] = useState(false);
@@ -196,7 +197,8 @@ export default function BarangViewPage() {
         color="#fff"
         mode="flat"
         style={styles.fab}
-        onPress={() => console.log("Pressed")}
+        onPress={() => router.push("/barang/add")}
+        // digunakan untuk kembali ke halaman home di device onPress={() => router.replace("/barang/add")}
         disabled={loading}
       />
 
