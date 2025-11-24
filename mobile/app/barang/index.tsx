@@ -15,6 +15,7 @@ import axios from "axios";
 import { Strings } from "@/constants/strings";
 import { formatRupiah } from "@/utils/scripts";
 import { router } from "expo-router";
+import { styles } from "@/styles/barang";
 
 export default function BarangViewPage() {
   const [visible, setVisible] = useState(false);
@@ -233,31 +234,3 @@ export default function BarangViewPage() {
   );
 }
 
-// buat css (styling)
-const size = 20;
-
-const styles = StyleSheet.create({
-  warna_bg: {
-    backgroundColor: "#a51c31",
-    color: "#ffffff",
-    fontSize: size,
-  },
-
-  jarak: {
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-  },
-
-  fab: {
-    position: "absolute",
-    margin: 15,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "#a51c31",
-    color: "#fff",
-  },
-
-  card: {
-    margin: 20,
-  },
-});
