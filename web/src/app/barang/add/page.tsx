@@ -27,7 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   filterHarga,
@@ -36,6 +36,9 @@ import {
   filterNama,
   formatRibuan,
 } from "@/lib/scripts";
+import { toast } from "sonner";
+import axios from "axios";
+import Link from "next/link";
 
 // display satuan
 const satuan = [
@@ -63,6 +66,73 @@ export default function AddBarangPage() {
   const [formHarga, setFormHarga] = useState("");
   const [formHargaRaw, setFormHargaRaw] = useState(0);
 
+  // buat state untuk cek error (jika ada salah komponen tidak diisi)
+  // bentuk state berupa objek
+  const [error, setError] = useState<{
+    kode: boolean;
+    nama: boolean;
+    harga: boolean;
+    satuan: boolean;
+  }>({
+    kode: false,
+    nama: false,
+    harga: false,
+    satuan: false,
+  });
+
+  // buat fungsi untuk simpan data
+  const saveData = async () => {
+    // buat object errorStatus untuk menampung kondisi error setiap komponen
+    const errorStatus = {
+      kode: formKode === "",
+      nama: formNama === "",
+      harga: formHarga === "",
+      satuan: value === "",
+    };
+
+    // update kondisi error setiap komponen
+    setError(errorStatus);
+
+    const hasError =
+      errorStatus.kode ||
+      errorStatus.nama ||
+      errorStatus.harga ||
+      errorStatus.satuan;
+
+    // jika ada salah satu komponen tidak diisi
+    if (hasError) {
+      return;
+    }
+
+    // jika tidak error (seluruh komponen sudah diisi)
+    //  simpan data
+    try {
+      const response = await axios.post(`http://localhost:3001/api/barang`, {
+        kode: formKode,
+        nama: formNama,
+        harga: formHargaRaw,
+        satuan: value,
+      });
+      // jika success == true
+      if (response.data.success) {
+        toast.success(response.data.message);
+
+        // kosongkan isi komponen
+        setFormKode("");
+        setFormNama("");
+        setFormHarga("");
+        setFormHargaRaw(0);
+        setValue("");
+      }
+      // jika success == false
+      else {
+        toast.error(response.data.message);
+      }
+    } catch {
+      toast.error(`Gagal Kirim Data !`);
+    }
+  };
+
   return (
     <>
       <article className={`${styles.content} grid sm:grid-cols-2 gap-5`}>
@@ -84,6 +154,14 @@ export default function AddBarangPage() {
                 setFormKode(result);
               }}
             />
+
+            {/* tampilkan error jika kode barang belum di isi */}
+            {error.kode && (
+              <Label className={styles.error}>
+                <Info size={14} />
+                Kode Barang Harus Di Isi!!!
+              </Label>
+            )}
           </div>
         </section>
 
@@ -105,6 +183,13 @@ export default function AddBarangPage() {
                 setFormNama(result);
               }}
             />
+
+            {/* tampilkan error jika nama barang belum di isis */}
+            {error.nama && (
+              <Label className={styles.error}>
+                <Info size={14} /> Nama Barang Harus Diisi !
+              </Label>
+            )}
           </div>
         </section>
 
@@ -114,7 +199,7 @@ export default function AddBarangPage() {
             {/* fungsi htmlfor mengarahkan label ke input walaupun terpisah */}
             <Label htmlFor="txt_harga">Harga Barang</Label>
             <Input
-              type="number"
+              type="text"
               id="txt_harga"
               placeholder="Isi Harga Barang"
               maxLength={11}
@@ -129,6 +214,12 @@ export default function AddBarangPage() {
                 setFormHargaRaw(Number(resultRaw));
               }}
             />
+            {/* tampilkan error jika harga barang belum diisi */}
+            {error.harga && (
+              <Label className={styles.error}>
+                <Info size={14} /> Harga Barang Harus Diisi !
+              </Label>
+            )}
           </div>
         </section>
 
@@ -201,6 +292,13 @@ export default function AddBarangPage() {
                 </Command>
               </PopoverContent>
             </Popover>
+
+            {/* tampilkan error jika satuan barang belum dipilih */}
+            {error.satuan && (
+              <Label className={styles.error}>
+                <Info size={14} /> Satuan Barang Harus Dipilih !
+              </Label>
+            )}
           </div>
         </section>
 
@@ -208,9 +306,12 @@ export default function AddBarangPage() {
         <section className="sm:justify-start justify-center flex">
           <Button
             className="rounded-full px-2.5 mr-1.5 w-[100px]"
-            onClick={() => {
-              console.log(`${formKode}, ${formNama}, ${formHarga}, ${formHargaRaw}`);
-            }}
+            // onClick={() => {
+            //   console.log(
+            //     `${formKode}, ${formNama}, ${formHarga}, ${formHargaRaw}`
+            //   );
+            // }}
+            onClick={saveData}
           >
             Simpan
           </Button>
@@ -218,7 +319,7 @@ export default function AddBarangPage() {
             className="rounded-full px-2.5 ml-1.5 w-[100px]"
             variant="secondary"
           >
-            Batal
+            <Link href="/">Batal</Link>
           </Button>
         </section>
       </article>

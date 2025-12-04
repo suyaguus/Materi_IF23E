@@ -33,7 +33,7 @@ export default function BarangViewPage() {
   // buat react hook (useState)
   const [data, setData] = useState<
     { id: number; nama: string; kode: string; harga: number; satuan: string }[]
-  >([]);  
+  >([]);
 
   // State untuk Pencarian
   const [search, setSearch] = useState("");
@@ -55,29 +55,30 @@ export default function BarangViewPage() {
   // buat react hook (useEffect)
   useEffect(() => {
     getDataBarang();
-  }, []);
 
-  useEffect(() => {
-    // jika search data di isi
+    // jika pencarian data diisi
     if (search.toLowerCase().trim() !== "") {
-      // Lakukan Pencarian dan filter data berdasarkan nama dan harga barang
+      // lakukan pencarian dan filter data
+      // berdasarkan nama barang / harga barang
       const filter_data = data.filter((item) => {
         // filter nama dengan mengabaikan spasi
         const nama = item.nama.replace(/\s+/g, "").toLowerCase();
         // filter harga tanpa mengabaikan spasi
-        const harga = item.harga.toString().toLowerCase();
+        // const harga = item.harga.toString().toLowerCase();
+        const harga = String(item.harga).toLowerCase();
 
+        // proses filter data
         return (
           nama.includes(search.replace(/\s+/g, "").toLowerCase()) ||
           harga.includes(search.toLowerCase())
         );
       });
-      // Tampilkan data barang berdasarkan pencarian
+      // tampilkan data barang berdasarkan pencarian
       setFilter(filter_data);
     }
-    // jika pencarian data tidak di isi
+    // jika pencarian data tidak diisi
     else {
-      // Tampilkan Seluruh data
+      // tampilkan seluruh data barang
       setFilter(data);
     }
   }, [search, data]);
@@ -98,18 +99,17 @@ export default function BarangViewPage() {
     }
   };
 
+  // buat pesan untuk menghapus data
   const setMessage = (text: string) => {
     message.current = "Data barang : " + text + " ingin dihapus ?";
   };
 
   // buat fungsi untuk hapus data
-  const deleteDataBarang = async (id: number) => {
+  const deleteDataBarang = async () => {
     try {
-      setLoading(true);
       const response = await axios.delete(
         `${Strings.api_barang}/${id}` // contans strings untuk api
       );
-      
 
       // tampilkan response (message)
       messageResponse.current = response.data.message;
@@ -125,7 +125,6 @@ export default function BarangViewPage() {
       setLoading(false);
       hideDialog();
     }
-    
   };
 
   return (
@@ -145,7 +144,7 @@ export default function BarangViewPage() {
                 name="search"
                 size={24}
                 color="black"
-                onPress={() => console.log("Pressed")}
+                onPress={() => console.log("Search")}
               />
             )}
           />
@@ -153,7 +152,6 @@ export default function BarangViewPage() {
         style={{ fontSize: 16, backgroundColor: "#fff" }}
         value={search}
         onChangeText={(text) => setSearch(text)}
-        editable={!loading}
       />
 
       {/* area content */}
@@ -183,7 +181,6 @@ export default function BarangViewPage() {
               <Button
                 style={{ backgroundColor: "white" }}
                 onPress={() => console.log("Edit")}
-                disabled={loading}
               >
                 <MaterialIcons name="edit" size={24} color="black" />
               </Button>
@@ -200,7 +197,6 @@ export default function BarangViewPage() {
         style={styles.fab}
         onPress={() => router.push("/barang/add")}
         // digunakan untuk kembali ke halaman home di device onPress={() => router.replace("/barang/add")}
-        disabled={loading}
       />
 
       {/* area dialog hapus data */}
@@ -211,17 +207,8 @@ export default function BarangViewPage() {
             <Text variant="bodyMedium">{message.current}</Text>
           </Dialog.Content>
           <Dialog.Actions>
-            <Button
-              onPress={() => {
-                deleteDataBarang(id);
-              }}
-              disabled={loading}
-            >
-              Ya
-            </Button>
-            <Button onPress={hideDialog} disabled={loading}>
-              Tidak
-            </Button>
+            <Button onPress={deleteDataBarang}>Ya</Button>
+            <Button onPress={hideDialog}>Tidak</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -233,4 +220,3 @@ export default function BarangViewPage() {
     </View>
   );
 }
-

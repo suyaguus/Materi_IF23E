@@ -31,5 +31,10 @@ export const styles = StyleSheet.create({
   text_input : {
     backgroundColor: "#fff",
     marginVertical: 5,
+  },
+
+  satuan_area: {
+    width: "100%",
+    marginBottom: 10,
   }
 });
