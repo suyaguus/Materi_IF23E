@@ -39,6 +39,8 @@ import {
 import { toast } from "sonner";
 import axios from "axios";
 import Link from "next/link";
+import { API_BARANG } from "@/lib/strings";
+import { useRouter } from "next/navigation";
 
 // display satuan
 const satuan = [
@@ -57,6 +59,9 @@ const satuan = [
 ];
 
 export default function AddBarangPage() {
+  // buat variable router untuk (navigasi halaman)
+  const router = useRouter();
+
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
@@ -107,7 +112,7 @@ export default function AddBarangPage() {
     // jika tidak error (seluruh komponen sudah diisi)
     //  simpan data
     try {
-      const response = await axios.post(`http://localhost:3001/api/barang`, {
+      const response = await axios.post(API_BARANG, {
         kode: formKode,
         nama: formNama,
         harga: formHargaRaw,
@@ -311,15 +316,20 @@ export default function AddBarangPage() {
             //     `${formKode}, ${formNama}, ${formHarga}, ${formHargaRaw}`
             //   );
             // }}
-            onClick={saveData}
+            onClick={() => {
+              saveData(); 
+              router.push("./view"); 
+            }}
           >
             Simpan
           </Button>
           <Button
             className="rounded-full px-2.5 ml-1.5 w-[100px]"
             variant="secondary"
+            onClick={() => router.back()}
+            // router.push("/barang"), replace,
           >
-            <Link href="/">Batal</Link>
+            Batal
           </Button>
         </section>
       </article>

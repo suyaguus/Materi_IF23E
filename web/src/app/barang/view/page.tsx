@@ -29,6 +29,7 @@ import {
 import axios from "axios";
 import { toast } from "sonner";
 import Link from "next/link";
+import { API_BARANG } from "@/lib/strings";
 
 // buat interface
 interface ModelBarang {
@@ -47,14 +48,14 @@ export default function ViewBarangPage() {
 
   // swr digunakan untuk mengambil data
   const { data, error, isLoading, mutate } = useSWR(
-    "http://localhost:3001/api/barang",
+    API_BARANG,
     fetcher
   );
 
   // buat fungsi untuk hapus data
   const deleteData = async (id: number) => {
     const response = await axios.delete(
-      `http://localhost:3001/api/barang/${id}`
+      `${API_BARANG}/${id}`
     );
 
     // tampilkan hasil respon
