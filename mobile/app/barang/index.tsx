@@ -130,9 +130,9 @@ export default function BarangViewPage() {
   return (
     <View style={{ flex: 1, justifyContent: "flex-start", width: "100%" }}>
       {/* Area header */}
-      <Text style={[styles.warna_bg, styles.jarak, { textAlign: "center" }]}>
-        Halaman View barang
-      </Text>
+      <View style={styles.header_area}>
+        <Text style={styles.header_title}>View Data Barang</Text>
+      </View>
 
       {/* area pencarian */}
       <TextInput
@@ -220,3 +220,4 @@ export default function BarangViewPage() {
     </View>
   );
 }
+

@@ -24,11 +24,28 @@ export const styles = StyleSheet.create({
     color: "#fff",
   },
 
+  header_area: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+    position: "relative",
+    backgroundColor: "#a51c31",
+    padding: 10,
+  },
+
+  header_title: {
+    fontSize: size,
+    color: "#ffffff",
+  },
+
   card: {
     margin: 20,
   },
 
-  text_input : {
+
+  text_input: {
     backgroundColor: "#fff",
     marginVertical: 5,
   },
@@ -36,5 +53,26 @@ export const styles = StyleSheet.create({
   satuan_area: {
     width: "100%",
     marginBottom: 10,
-  }
+  },
+
+  error_area: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 15,
+  },
+
+  error: {
+    color: "#ff0000",
+    fontSize: 12,
+    marginVertical: 5,
+    marginHorizontal: 0,
+    paddingLeft: 5,
+  },
+
+  back_button: {
+    position: "absolute",
+    left: 10,
+    color: "#ffffff",
+  },
 });

@@ -33,6 +33,8 @@ export default function BarangAddPage() {
   const [textNama, setTextNama] = useState("");
   const [textHarga, setTextHarga] = useState("");
   const [textHargaRaw, setTextHargaRaw] = useState(0);
+  // buat state untuk satuan
+  const [textSatuan, setTextSatuan] = useState(null);
 
   // bagian useState untuk satuan
   const [value, setValue] = useState(null);
@@ -49,8 +51,44 @@ export default function BarangAddPage() {
   // buat fungsi untuk hide snackbar
   const hideSnackbar = () => setVisibleSnackbar(false);
 
+  // buat state untuk cek error (jika ada salah komponen tidak di isi)
+  // bentuk state berupa objek
+  const [error, setError] = useState<{
+    kode: boolean;
+    nama: boolean;
+    harga: boolean;
+    satuan: boolean;
+  }>({
+    kode: false,
+    nama: false,
+    harga: false,
+    satuan: false,
+  });
+
   // buat fungsi untuk simpan data
   const saveData = async () => {
+    // buat object errorStatus untuk menampung kondisi error setiap komponen
+    const errorStatus = {
+      kode: textKode === "",
+      nama: textNama === "",
+      harga: textHarga === "",
+      satuan: textSatuan === null,
+    };
+
+    // update kondisi error setiap komponen
+    setError(errorStatus);
+
+    const hasError =
+      errorStatus.kode ||
+      errorStatus.nama ||
+      errorStatus.harga ||
+      errorStatus.satuan;
+
+    // jika ada salah satu komponen tidak di isi
+    if (hasError) {
+      return;
+    }
+
     // jika tidak error
     try {
       const response = await axios.post(Strings.api_barang, {
@@ -67,7 +105,7 @@ export default function BarangAddPage() {
         setTextNama("");
         setTextHarga("");
         setTextHargaRaw(0);
-        setValue(null);
+        setTextSatuan(null);
 
         // pilih salah 1 opsi berikut setelah simpan data berhasil
         // 1. hilangkan focus
@@ -91,7 +129,7 @@ export default function BarangAddPage() {
     return (
       <View style={styles_dropdown.item}>
         <Text style={styles_dropdown.textItem}>{item.label}</Text>
-        {item.value === value && (
+        {item.value === textSatuan && (
           // <AntDesign
           //   style={styles.icon}
           //   color="black"
@@ -133,6 +171,14 @@ export default function BarangAddPage() {
         }}
       />
 
+      {/* tampilkan error jika kode barang belum di isi */}
+      {error.kode && (
+        <View style={styles.error_area}>
+          <MaterialIcons name="info-outline" size={16} color="#ff0000" />
+          <Text style={styles.error}>Kode Barang Harus Di Isi !</Text>
+        </View>
+      )}
+
       {/* area nama */}
       <TextInput
         label="Nama Barang..."
@@ -144,6 +190,14 @@ export default function BarangAddPage() {
           setTextNama(result);
         }}
       />
+
+      {/* tampilkan error jika nama barang belum diisi */}
+      {error.nama && (
+        <View style={styles.error_area}>
+          <MaterialIcons name="info-outline" size={16} color="#ff0000" />
+          <Text style={styles.error}>Nama Barang Harus Diisi !</Text>
+        </View>
+      )}
 
       {/* area harga */}
       <TextInput
@@ -158,6 +212,15 @@ export default function BarangAddPage() {
           setTextHargaRaw(Number(result_raw));
         }}
       />
+
+      {/* tampilkan error jika harga barang belum diisi */}
+      {error.harga && (
+        <View style={styles.error_area}>
+          <MaterialIcons name="info-outline" size={16} color="#ff0000" />
+          <Text style={styles.error}>Harga Barang Harus Diisi !</Text>
+        </View>
+      )}
+
       {/* area satuan */}
       <View style={styles.satuan_area}>
         <Dropdown
@@ -194,6 +257,15 @@ export default function BarangAddPage() {
           renderItem={renderItem}
         />
       </View>
+
+      {/* tampilkan error jika satuan barang belum diisi */}
+      {error.satuan && (
+        <View style={styles.error_area}>
+          <MaterialIcons name="info-outline" size={16} color="#ff0000" />
+          <Text style={styles.error}>Satuan Barang Harus Dipilih !</Text>
+        </View>
+      )}
+      
       {/* area tombol */}
       <View
         style={{

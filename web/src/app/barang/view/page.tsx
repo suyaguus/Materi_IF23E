@@ -2,12 +2,10 @@
 
 import React from "react";
 import styles from "../barang.module.css";
-import Image from "next/image";
 import useSWR from "swr";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -30,6 +28,7 @@ import axios from "axios";
 import { toast } from "sonner";
 import Link from "next/link";
 import { API_BARANG } from "@/lib/strings";
+import { useRouter } from "next/navigation";
 
 // buat interface
 interface ModelBarang {
@@ -46,29 +45,27 @@ export default function ViewBarangPage() {
   // const nama = "Teknokrat";
   // const motto = "Sang Juara";
 
+  // buat react hook
+  const router = useRouter();
+
   // swr digunakan untuk mengambil data
-  const { data, error, isLoading, mutate } = useSWR(
-    API_BARANG,
-    fetcher
-  );
+  const { data, error, isLoading, mutate } = useSWR(API_BARANG, fetcher);
 
   // buat fungsi untuk hapus data
   const deleteData = async (id: number) => {
-    const response = await axios.delete(
-      `${API_BARANG}/${id}`
-    );
+    const response = await axios.delete(`${API_BARANG}/${id}`);
 
     // tampilkan hasil respon
     // console.log(response.data.message);
 
     // jika sukses == true
     if (response.data.success) {
-      toast.success(response.data.message)
+      toast.success(response.data.message);
     }
 
     // jika sukses == false
     else {
-      toast.error(response.data.message)
+      toast.error(response.data.message);
     }
 
     mutate(data);
@@ -87,10 +84,12 @@ export default function ViewBarangPage() {
 
       {/* header ada di file layout*/}
 
-
       {/* tombol tambah */}
       <nav className="mt-2.5 mx flex md:justify-end sm:justify-start justify-center">
-        <Link href="/barang/add" className="sm:bg-sky-700 bg-rose-700 text-white py-2.5 px-5 rounded-full">
+        <Link
+          href="/barang/add"
+          className="sm:bg-sky-700 bg-rose-700 text-white py-2.5 px-5 rounded-full"
+        >
           Tambah Data
         </Link>
       </nav>
@@ -143,8 +142,12 @@ export default function ViewBarangPage() {
                   // </div>
                   <TableRow key={item.id}>
                     <TableCell className="text-center bg-red-200">
+
                       {/* buat tombol edit */}
-                      <button className={styles.btn_edit}>
+                      <button
+                        className={styles.btn_edit}
+                        onClick={() => router.push(`/barang/edit/${item.id}`)}
+                      >
                         <Pencil size={15} />
                       </button>
 
@@ -192,7 +195,6 @@ export default function ViewBarangPage() {
       </article>
 
       {/* footer ada di file layout*/}
-      
     </>
   );
 }

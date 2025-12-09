@@ -1,7 +1,7 @@
 "use client";
-
-import styles from "../barang.module.css";
+import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
+import styles from "../../barang.module.css";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -27,10 +27,6 @@ import {
   filterNama,
   formatRibuan,
 } from "@/lib/scripts";
-import { toast } from "sonner";
-import axios from "axios";
-import { API_BARANG } from "@/lib/strings";
-import { useRouter } from "next/navigation";
 
 // display satuan
 const satuan = [
@@ -48,12 +44,10 @@ const satuan = [
   },
 ];
 
-export default function AddBarangPage() {
-  // buat variable router untuk (navigasi halaman)
-  const router = useRouter();
-
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
+export default function EditBarangPage() {
+  // buat hook use params (digunakan untuk mengambil nilai slug/params untuk url)
+  const params = useParams();
+  const slug = params.slug;
 
   // buat state untuk kode
   const [formKode, setFormKode] = useState("");
@@ -75,61 +69,17 @@ export default function AddBarangPage() {
     satuan: false,
   });
 
-  // buat fungsi untuk simpan data
-  const saveData = async () => {
-    // buat object errorStatus untuk menampung kondisi error setiap komponen
-    const errorStatus = {
-      kode: formKode === "",
-      nama: formNama === "",
-      harga: formHarga === "",
-      satuan: value === "",
-    };
+  //   untuk area satuan popover
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
 
-    // update kondisi error setiap komponen
-    setError(errorStatus);
-
-    const hasError =
-      errorStatus.kode ||
-      errorStatus.nama ||
-      errorStatus.harga ||
-      errorStatus.satuan;
-
-    // jika ada salah satu komponen tidak diisi
-    if (hasError) {
-      return;
-    }
-
-    // jika tidak error (seluruh komponen sudah diisi)
-    //  simpan data
-    try {
-      const response = await axios.post(API_BARANG, {
-        kode: formKode,
-        nama: formNama,
-        harga: formHargaRaw,
-        satuan: value,
-      });
-      // jika success == true
-      if (response.data.success) {
-        toast.success(response.data.message);
-
-        // kosongkan isi komponen
-        setFormKode("");
-        setFormNama("");
-        setFormHarga("");
-        setFormHargaRaw(0);
-        setValue("");
-      }
-      // jika success == false
-      else {
-        toast.error(response.data.message);
-      }
-    } catch {
-      toast.error(`Gagal Kirim Data !`);
-    }
-  };
+  //   untuk navigasi halaman
+  const router = useRouter();
 
   return (
     <>
+      <title>Edit Data Barang</title>
+
       <article className={`${styles.content} grid sm:grid-cols-2 gap-5`}>
         {/* area kode */}
         <section>
@@ -307,11 +257,10 @@ export default function AddBarangPage() {
             //   );
             // }}
             onClick={() => {
-              saveData(); 
-              router.push("./view"); 
+              router.push("./view");
             }}
           >
-            Simpan
+            Ubah
           </Button>
           <Button
             className="rounded-full px-2.5 ml-1.5 w-[100px]"
