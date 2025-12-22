@@ -1,9 +1,8 @@
 "use client";
+
 import { useParams, useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "../../barang.module.css";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -13,6 +12,8 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -26,10 +27,18 @@ import {
   filterKode,
   filterNama,
   formatRibuan,
+  formatRupiah,
 } from "@/lib/scripts";
+import { API_BARANG } from "@/lib/strings";
+import useSWR from "swr";
+import axios from "axios";
+import { toast } from "sonner";
 
-// display satuan
 const satuan = [
+  {
+    value: "Unit",
+    label: "Unit",
+  },
   {
     value: "Pcs",
     label: "Pcs",
@@ -38,14 +47,13 @@ const satuan = [
     value: "Kg",
     label: "Kilogram",
   },
-  {
-    value: "Unit",
-    label: "Unit",
-  },
 ];
 
+// buat variabel fetcher
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export default function EditBarangPage() {
-  // buat hook use params (digunakan untuk mengambil nilai slug/params untuk url)
+  // buat hook useParams
   const params = useParams();
   const slug = params.slug;
 
@@ -69,204 +77,265 @@ export default function EditBarangPage() {
     satuan: false,
   });
 
-  //   untuk area satuan popover
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
-  //   untuk navigasi halaman
+  // buat variabel router (untuk navigasi halaman)
   const router = useRouter();
+
+  // panggil service detail barang sesuai slug (id)
+  const { data } = useSWR(`${API_BARANG}/${slug}`, fetcher);
+
+  // tampilkan detail data ke dalam komponen
+  useEffect(() => {
+    // jika data tidak ditemukan
+    if (!data) return;
+
+    // jika data barang tidak ditemukan
+    if (!data.barang) {
+      // alihkan ke halaman 404
+      router.replace("/404");
+      return;
+    }
+
+    // jika data barang ditemukan
+    const barang = data.barang;
+
+    // tampilkan data ke dalam form
+    setFormKode(barang.kode ?? "");
+    setFormNama(barang.nama ?? "");
+    setFormHarga(formatRupiah(Number(barang.harga)) ?? "");
+    setFormHargaRaw(barang.harga ?? 0);
+    setValue(barang.satuan);
+  }, [data, router]);
+
+  // buat fungsi untuk edit data
+  const editData = async () => {
+    // buat object errorStatus untuk menampung kondisi error setiap komponen
+    const errorStatus = {
+      kode: formKode === "",
+      nama: formNama === "",
+      harga: formHarga === "",
+      satuan: value === "",
+    };
+
+    // update kondisi error setiap komponen
+    setError(errorStatus);
+
+    const hasError =
+      errorStatus.kode ||
+      errorStatus.nama ||
+      errorStatus.harga ||
+      errorStatus.satuan;
+
+    // jika ada salah satu komponen tidak diisi
+    if (hasError) {
+      return;
+    }
+
+    // jika tidak error (seluruh komponen sudah diisi)
+    // ubah data
+    try {
+      // const response = await axios.put(API_BARANG, {
+      //   kode: formKode,
+      //   nama: formNama,
+      //   harga: formHargaRaw,
+      //   satuan: value,
+      // });
+
+      // `${API_BARANG}/${id}` id diganti sesuai variable diatas
+      const response = await axios.put(`${API_BARANG}/${slug}`, {
+        kode: formKode,
+        nama: formNama,
+        harga: formHargaRaw,
+        satuan: value,
+      });
+      // jika success == true
+      if (response.data.success) {
+        toast.success(response.data.message);
+
+        // ketika berhasil simpan data kosongkan isi komponen
+        // setFormKode("");
+        // setFormNama("");
+        // setFormHarga("");
+        // setFormHargaRaw(0);
+        // setValue("");
+      }
+      // jika success == false
+      else {
+        toast.error(response.data.message);
+      }
+    } catch {
+      toast.error(`Gagal Kirim Data !`);
+    }
+  };
 
   return (
     <>
       <title>Edit Data Barang</title>
 
-      <article className={`${styles.content} grid sm:grid-cols-2 gap-5`}>
+      <article
+        className={`${styles.content} grid sm:grid-cols-2 grid-cols-1 gap-4`}
+      >
         {/* area kode */}
         <section>
-          <div className="grid w-full max-w-sm items-center gap-3">
-            {/* fungsi htmlfor mengarahkan label ke input walaupun terpisah */}
-            <Label htmlFor="txt_kode">Kode Barang</Label>
-            <Input
-              type="text"
-              id="txt_kode"
-              placeholder="Isi Kode Barang"
-              maxLength={15}
-              value={formKode}
-              onChange={(event) => {
-                // buat variable untuk filterkode
-                const result = filterKode(event.target.value);
-                // simpan data input ke state
-                setFormKode(result);
-              }}
-            />
+          <Label htmlFor="txt_kode" className={styles.label}>
+            Kode Barang
+          </Label>
+          <Input
+            type="text"
+            id="txt_kode"
+            placeholder="Isi Kode Barang"
+            maxLength={15}
+            value={formKode}
+            onChange={(event) => {
+              // buat variabel untuk filterKode
+              const result = filterKode(event.target.value);
+              // simpan data input ke state
+              setFormKode(result);
+            }}
+          />
 
-            {/* tampilkan error jika kode barang belum di isi */}
-            {error.kode && (
-              <Label className={styles.error}>
-                <Info size={14} />
-                Kode Barang Harus Di Isi!!!
-              </Label>
-            )}
-          </div>
+          {/* tampilkan error jika kode barang belum diisi */}
+          {error.kode && (
+            <Label className={styles.error}>
+              <Info size={14} /> Kode Barang Harus Diisi !
+            </Label>
+          )}
         </section>
 
         {/* area nama */}
         <section>
-          <div className="grid w-full max-w-sm items-center gap-3">
-            {/* fungsi htmlfor mengarahkan label ke input walaupun terpisah */}
-            <Label htmlFor="txt_nama">Nama Barang</Label>
-            <Input
-              type="text"
-              id="txt_nama"
-              placeholder="Isi Nama Barang"
-              maxLength={50}
-              value={formNama}
-              onChange={(event) => {
-                // buat variable untuk filterkode
-                const result = filterNama(event.target.value);
-                // simpan data input ke state
-                setFormNama(result);
-              }}
-            />
+          <Label htmlFor="txt_nama" className={styles.label}>
+            Nama Barang
+          </Label>
+          <Input
+            type="text"
+            id="txt_nama"
+            placeholder="Isi Nama Barang"
+            maxLength={50}
+            value={formNama}
+            onChange={(event) => {
+              // buat variabel untuk filterNama
+              const result = filterNama(event.target.value);
+              // simpan data input ke state
+              setFormNama(result);
+            }}
+          />
 
-            {/* tampilkan error jika nama barang belum di isis */}
-            {error.nama && (
-              <Label className={styles.error}>
-                <Info size={14} /> Nama Barang Harus Diisi !
-              </Label>
-            )}
-          </div>
+          {/* tampilkan error jika nama barang belum diisi */}
+          {error.nama && (
+            <Label className={styles.error}>
+              <Info size={14} /> Nama Barang Harus Diisi !
+            </Label>
+          )}
         </section>
 
         {/* area harga */}
         <section>
-          <div className="grid w-full max-w-sm items-center gap-3">
-            {/* fungsi htmlfor mengarahkan label ke input walaupun terpisah */}
-            <Label htmlFor="txt_harga">Harga Barang</Label>
-            <Input
-              type="text"
-              id="txt_harga"
-              placeholder="Isi Harga Barang"
-              maxLength={11}
-              value={formHarga}
-              onChange={(event) => {
-                // buat variable untuk filterkode
-                const result = formatRibuan(filterHarga(event.target.value));
-                // buat variable untuk filterHargaRaw
-                const resultRaw = filterHargaRaw(event.target.value);
-                // simpan data input ke state
-                setFormHarga(result);
-                setFormHargaRaw(Number(resultRaw));
-              }}
-            />
-            {/* tampilkan error jika harga barang belum diisi */}
-            {error.harga && (
-              <Label className={styles.error}>
-                <Info size={14} /> Harga Barang Harus Diisi !
-              </Label>
-            )}
-          </div>
+          <Label htmlFor="txt_harga" className={styles.label}>
+            Harga Barang
+          </Label>
+          <Input
+            type="text"
+            id="txt_harga"
+            placeholder="Isi Harga Barang"
+            maxLength={11}
+            value={formHarga}
+            onChange={(event) => {
+              // buat variabel untuk filterHarga
+              const result = formatRibuan(filterHarga(event.target.value));
+              // buat variabel untuk filterHargaRaw
+              const resultRaw = filterHargaRaw(event.target.value);
+              // simpan data input ke state
+              setFormHarga(result);
+              setFormHargaRaw(Number(resultRaw));
+            }}
+          />
+
+          {/* tampilkan error jika harga barang belum diisi */}
+          {error.harga && (
+            <Label className={styles.error}>
+              <Info size={14} /> Harga Barang Harus Diisi !
+            </Label>
+          )}
         </section>
 
         {/* area satuan */}
         <section>
-          {/* <Select>
-            <Label htmlFor="txt_satuan">Satuan Barang</Label>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Pilih satuan barang" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>Pilih Satuan Barang</SelectLabel>
-                <SelectItem value="pcd">Pcs</SelectItem>
-                <SelectItem value="kg">Kg</SelectItem>
-                <SelectItem value="unit">Unit</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select> */}
-          <div className="grid w-full max-w-sm items-center gap-3">
-            <Label htmlFor="txt_satuan">Satuan Barang</Label>
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={open}
-                  className="w-full justify-between"
-                >
-                  {value
-                    ? satuan.find((data_satuan) => data_satuan.value === value)
-                        ?.label
-                    : "Pilih Satuan Barang..."}
-                  <ChevronsUpDown className="opacity-50" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="start" className="w-full p-0">
-                <Command>
-                  <CommandInput
-                    placeholder="Cari Satuan Barang"
-                    className="h-9"
-                  />
-                  <CommandList>
-                    <CommandEmpty>Data tidak ditemukan!</CommandEmpty>
-                    <CommandGroup>
-                      {satuan.map((data_satuan) => (
-                        <CommandItem
-                          key={data_satuan.value}
-                          value={data_satuan.value}
-                          onSelect={(currentValue) => {
-                            setValue(
-                              currentValue === value ? "" : currentValue
-                            );
-                            setOpen(false);
-                          }}
-                        >
-                          {data_satuan.label}
-                          <Check
-                            className={cn(
-                              "ml-auto",
-                              value === data_satuan.value
-                                ? "opacity-100"
-                                : "opacity-0"
-                            )}
-                          />
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
+          <Label htmlFor="cbo_satuan" className={styles.label}>
+            Satuan Barang
+          </Label>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="w-full justify-between"
+              >
+                {value
+                  ? satuan.find((data_satuan) => data_satuan.value === value)
+                      ?.label
+                  : "Pilih Satuan Barang"}
+                <ChevronsUpDown className="opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-full p-0">
+              <Command>
+                <CommandInput
+                  placeholder="Cari Satuan Barang"
+                  className="h-9"
+                />
+                <CommandList>
+                  <CommandEmpty>Data Tidak Ditemukan !</CommandEmpty>
+                  <CommandGroup>
+                    {satuan.map((data_satuan) => (
+                      <CommandItem
+                        key={data_satuan.value}
+                        value={data_satuan.value}
+                        onSelect={(currentValue) => {
+                          setValue(currentValue === value ? "" : currentValue);
+                          setOpen(false);
+                        }}
+                      >
+                        {data_satuan.label}
+                        <Check
+                          className={cn(
+                            "ml-auto",
+                            value === data_satuan.value
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
 
-            {/* tampilkan error jika satuan barang belum dipilih */}
-            {error.satuan && (
-              <Label className={styles.error}>
-                <Info size={14} /> Satuan Barang Harus Dipilih !
-              </Label>
-            )}
-          </div>
+          {/* tampilkan error jika satuan barang belum dipilih */}
+          {error.satuan && (
+            <Label className={styles.error}>
+              <Info size={14} /> Satuan Barang Harus Dipilih !
+            </Label>
+          )}
         </section>
 
         {/* area tombol */}
-        <section className="sm:justify-start justify-center flex">
+        <section className="flex sm:justify-start justify-center">
           <Button
             className="rounded-full px-2.5 mr-1.5 w-[100px]"
-            // onClick={() => {
-            //   console.log(
-            //     `${formKode}, ${formNama}, ${formHarga}, ${formHargaRaw}`
-            //   );
-            // }}
-            onClick={() => {
-              router.push("./view");
-            }}
+            onClick={editData}
           >
             Ubah
           </Button>
           <Button
-            className="rounded-full px-2.5 ml-1.5 w-[100px]"
             variant="secondary"
+            className="rounded-full px-2.5 ml-1.5 w-[100px]"
             onClick={() => router.back()}
-            // router.push("/barang"), replace,
           >
             Batal
           </Button>

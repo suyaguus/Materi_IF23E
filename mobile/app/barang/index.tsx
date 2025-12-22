@@ -174,13 +174,13 @@ export default function BarangViewPage() {
                   setMessage(item.nama);
                   showDialog();
                 }}
-                disabled={loading}
+                // disabled={loading}
               >
                 <MaterialIcons name="delete" size={24} color="white" />
               </Button>
               <Button
                 style={{ backgroundColor: "white" }}
-                onPress={() => console.log("Edit")}
+                onPress={() => router.push(`/barang/edit/${item.id}`)}
               >
                 <MaterialIcons name="edit" size={24} color="black" />
               </Button>
@@ -220,4 +220,3 @@ export default function BarangViewPage() {
     </View>
   );
 }
-

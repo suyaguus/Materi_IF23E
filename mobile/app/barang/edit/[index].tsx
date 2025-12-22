@@ -1,19 +1,18 @@
 import { View, Text, StyleSheet } from "react-native";
-import React, { useState, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
 import { styles, styles_dropdown } from "@/styles/barang"; // import styles dari file styles/barang.ts
-import { Button, Snackbar, TextInput } from "react-native-paper";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Dropdown } from "react-native-element-dropdown";
-import { Strings } from "@/constants/strings";
+import { Button, Snackbar, TextInput } from "react-native-paper";
 import {
   filterHargaRaw,
   filterKode,
   filterNama,
   formatRibuan,
 } from "@/utils/scripts";
+import { Dropdown } from "react-native-element-dropdown";
 import axios from "axios";
-import { router } from "expo-router";
-
+import { Strings } from "@/constants/strings";
 // testing dorpdown
 const data = [
   { label: "Unit", value: "Unit" },
@@ -27,7 +26,10 @@ interface DropdownItem {
   value: number;
 }
 
-export default function BarangAddPage() {
+export default function BarangEditPage() {
+  // buat hook untuk ambil nilai slug (id)
+  const { index } = useLocalSearchParams();
+
   // buat state
   const [textKode, setTextKode] = useState("");
   const [textNama, setTextNama] = useState("");
@@ -39,16 +41,15 @@ export default function BarangAddPage() {
   // bagian useState untuk satuan
   const [value, setValue] = useState(null);
 
+  // buat useRef untuk focus ke TextInput Kode Barang
+  const refFocus = useRef<any>(null);
+
   // buat state untuk snackbar
   const [visibleSnackbar, setVisibleSnackbar] = useState(false);
 
   // buat useRef untuk menampilkan respon simpan data
   const messageResponse = useRef("");
 
-  // buat useRef untuk focus ke TextInput Kode Barang
-  const refFocus = useRef<any>(null);
-
-  // buat fungsi untuk hide snackbar
   const hideSnackbar = () => setVisibleSnackbar(false);
 
   // buat state untuk cek error (jika ada salah komponen tidak di isi)
@@ -127,6 +128,40 @@ export default function BarangAddPage() {
     }
   };
 
+  // buat fungsi ambil data berdasarkan id
+  const detailData = useCallback(async () => {
+    try {
+      // panggil service get Detail Data
+      const response = await axios.get(`${Strings.api_barang}/${index}`);
+
+      // jika data barang ditemukan
+      if (response.data.barang) {
+        // tampilkan data barang ke masing masing komponen
+        setTextKode(response.data.barang.kode);
+        setTextNama(response.data.barang.nama);
+        setTextHargaRaw(Number(response.data.barang.harga));
+        setTextHarga(formatRibuan(response.data.barang.harga));
+        setTextSatuan(response.data.barang.satuan);
+      }
+
+      // jika data barang tidak ditemukan
+      else {
+        // tampilkan snackbar
+        router.replace("/barang");
+      }
+    } catch (error) {
+      console.log("Gagal Amnil Data!");
+    }
+  }, [index]);
+
+  // panggil fungsi ambil data
+  useEffect(() => {
+    detailData();
+  }, [detailData]);
+
+  // buat fungsi edit data
+  const editData = async () => {};
+
   const renderItem = (item: DropdownItem) => {
     return (
       <View style={styles_dropdown.item}>
@@ -148,7 +183,6 @@ export default function BarangAddPage() {
       </View>
     );
   };
-
   return (
     <View
       style={{
@@ -157,9 +191,44 @@ export default function BarangAddPage() {
         backgroundColor: "#fff",
       }}
     >
-      <Text style={[styles.warna_bg, styles.jarak, { textAlign: "center" }]}>
-        Halaman Tambah Data barang
-      </Text>
+      <View
+        style={[
+          styles.warna_bg,
+
+          {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            paddingHorizontal: 20,
+            gap: 20,
+          },
+        ]}
+      >
+        <MaterialIcons
+          style={styles.header_title}
+          name="arrow-back"
+          size={24}
+          color="black"
+          onPress={() => {
+            router.back();
+          }}
+        />
+        <Text style={[styles.warna_bg, styles.jarak, { textAlign: "center" }]}>
+          Halaman Ubah Data barang
+        </Text>
+      </View>
+      {/* <Text style={[styles.warna_bg, styles.jarak, { textAlign: "center" }]}>
+        <MaterialIcons
+          style={styles.header_title}
+          name="arrow-back"
+          size={24}
+          color="black"
+          onPress={() => {
+            router.back();
+          }}
+        />
+        Halaman Ubah Data barang
+      </Text> */}
 
       {/* area kode */}
       <TextInput
@@ -287,7 +356,7 @@ export default function BarangAddPage() {
             // router.push("/barang");
           }}
         >
-          Simpan
+          Ubah
         </Button>
         <Button icon="close" mode="outlined" onPress={() => router.back()}>
           Batal
@@ -301,4 +370,3 @@ export default function BarangAddPage() {
     </View>
   );
 }
-

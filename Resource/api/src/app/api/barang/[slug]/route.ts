@@ -42,66 +42,74 @@ export const DELETE = async (request: NextRequest, { params }: { params: { slug:
 
 
 //  Buat servoce PUT (Ubah Data)
-export const PUT = async (request: NextRequest, { params }: { params: { slug: string } }) => {
-
+export const PUT = async (
+    request: NextRequest,
+    { params }: { params: { slug: string } }
+) => {
     const data = await request.json();
+
     // cek apakah data barang ditemukan
     const check = await prisma.tb_barang.findFirst({
         where: {
-            id: Number(params.slug)
+            kode: data.kode,
+            id: {
+                not: Number(params.slug),
+            },
         },
-    })
+    });
 
-    //Jika data barang tidak ditemukan
-    if (!check) {
+    // jika data barang ditemukan
+    if (check) {
+        // tampilkan respon
         return NextResponse.json({
-            message: "Data Barang Gagal Diubah ! (Kode Tidak Ada)",
-            success: false
-        })
+            message: "Data Barang Gagal Diubah ! (Kode Tidak Ada !)",
+            success: false,
+        });
     }
 
-
-    //Jika data barang ditemukan
+    // jika data barang tidak ditemukan
     await prisma.tb_barang.update({
         where: {
-            id: Number(params.slug)
+            id: Number(params.slug),
         },
         data: {
             kode: data.kode,
             nama: data.nama,
             harga: data.harga,
-            satuan: data.satuan
-        }
-    })
+            satuan: data.satuan,
+        },
+    });
 
     // tampilkan respon
     return NextResponse.json({
         message: "Data Barang Berhasil Diubah",
-        success: true
-    })
+        success: true,
+    });
+};
 
-}
-
-// buat service get data by id
-export const GET = async (request: NextRequest, { params }: { params: { slug: string } }) => {
-
+// buat service GET (detail data)
+export const GET = async (
+    request: NextRequest,
+    { params }: { params: { slug: string } }
+) => {
     // cek apakah data barang ditemukan
     const data = await prisma.tb_barang.findUnique({
         where: {
-            id: Number(params.slug)
+            id: Number(params.slug),
         },
-    })
+    });
 
-    //Jika data barang tidak ditemukan
+    // jika data barang tidak ditemukan
     if (!data) {
+        // tampilkan respon
         return NextResponse.json({
-            message: "Data Barang Tidak DItemukan !!!",
-            success: false
-        })
+            message: "Data Barang Tidak Ditemukan !)",
+            success: false,
+        });
     }
 
-    // jika data barang ditemukan
+    //   jika data barang ditemukan
     return NextResponse.json({
         barang: data,
-    })
-}
+    });
+};
