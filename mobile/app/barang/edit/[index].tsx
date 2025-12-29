@@ -13,6 +13,8 @@ import {
 import { Dropdown } from "react-native-element-dropdown";
 import axios from "axios";
 import { Strings } from "@/constants/strings";
+import CustomHeader from "@/components/ui/custom/CustomHeader";
+import CustomButton from "@/components/ui/custom/CustomButton";
 // testing dorpdown
 const data = [
   { label: "Unit", value: "Unit" },
@@ -191,32 +193,8 @@ export default function BarangEditPage() {
         backgroundColor: "#fff",
       }}
     >
-      <View
-        style={[
-          styles.warna_bg,
+      <CustomHeader title="Ubah Barang" iconBack={true} onPress={() => router.replace("/barang")} />
 
-          {
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            paddingHorizontal: 20,
-            gap: 20,
-          },
-        ]}
-      >
-        <MaterialIcons
-          style={styles.header_title}
-          name="arrow-back"
-          size={24}
-          color="black"
-          onPress={() => {
-            router.back();
-          }}
-        />
-        <Text style={[styles.warna_bg, styles.jarak, { textAlign: "center" }]}>
-          Halaman Ubah Data barang
-        </Text>
-      </View>
       {/* <Text style={[styles.warna_bg, styles.jarak, { textAlign: "center" }]}>
         <MaterialIcons
           style={styles.header_title}
@@ -348,16 +326,7 @@ export default function BarangEditPage() {
           gap: 10,
         }}
       >
-        <Button
-          icon="check"
-          mode="contained"
-          onPress={() => {
-            saveData();
-            // router.push("/barang");
-          }}
-        >
-          Ubah
-        </Button>
+        <CustomButton title="Simpan" onPress={saveData} icon="pencil"/>
         <Button icon="close" mode="outlined" onPress={() => router.back()}>
           Batal
         </Button>

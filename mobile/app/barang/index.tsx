@@ -16,6 +16,7 @@ import { Strings } from "@/constants/strings";
 import { formatRupiah } from "@/utils/scripts";
 import { router } from "expo-router";
 import { styles } from "@/styles/barang";
+import CustomHeader from "@/components/ui/custom/CustomHeader";
 
 export default function BarangViewPage() {
   const [visible, setVisible] = useState(false);
@@ -130,9 +131,7 @@ export default function BarangViewPage() {
   return (
     <View style={{ flex: 1, justifyContent: "flex-start", width: "100%" }}>
       {/* Area header */}
-      <View style={styles.header_area}>
-        <Text style={styles.header_title}>View Data Barang</Text>
-      </View>
+      <CustomHeader title="Data Barang" iconBack={false} />
 
       {/* area pencarian */}
       <TextInput

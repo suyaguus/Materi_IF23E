@@ -13,6 +13,8 @@ import {
 } from "@/utils/scripts";
 import axios from "axios";
 import { router } from "expo-router";
+import CustomHeader from "@/components/ui/custom/CustomHeader";
+import CustomButton from "@/components/ui/custom/CustomButton";
 
 // testing dorpdown
 const data = [
@@ -157,9 +159,7 @@ export default function BarangAddPage() {
         backgroundColor: "#fff",
       }}
     >
-      <Text style={[styles.warna_bg, styles.jarak, { textAlign: "center" }]}>
-        Halaman Tambah Data barang
-      </Text>
+      <CustomHeader title="Tambah Barang" iconBack={true} onPress={() => router.back()} />
 
       {/* area kode */}
       <TextInput
@@ -279,16 +279,8 @@ export default function BarangAddPage() {
           gap: 10,
         }}
       >
-        <Button
-          icon="check"
-          mode="contained"
-          onPress={() => {
-            saveData();
-            // router.push("/barang");
-          }}
-        >
-          Simpan
-        </Button>
+        <CustomButton title="Simpan" onPress={saveData} icon="check"/>
+        
         <Button icon="close" mode="outlined" onPress={() => router.back()}>
           Batal
         </Button>
